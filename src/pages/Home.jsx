@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { X, User, Lock, GraduationCap, BookOpen, Brain, Users, MessageCircle, TrendingUp } from 'lucide-react'
+import InfiniteScroll from '../components/InfiniteScroll'
+import FeedPost from '../components/FeedPost'
 
 const Home = () => {
   const [showLoginSidebar, setShowLoginSidebar] = useState(false)
@@ -11,6 +13,80 @@ const Home = () => {
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  // Mock data para o feed infinito
+  const mockPosts = [
+    {
+      id: 1,
+      teacher: {
+        name: 'Prof. Ana Costa',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana'
+      },
+      subject: 'Matemática',
+      content: 'Hoje vamos estudar equações do segundo grau! 📊\n\nLembrem-se: ax² + bx + c = 0',
+      likes: 24,
+      comments: 8
+    },
+    {
+      id: 2,
+      teacher: {
+        name: 'Prof. Carlos Silva',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=carlos'
+      },
+      subject: 'História',
+      content: 'A Revolução Industrial mudou completamente a sociedade! 🏭\n\nPontos importantes:\n• Início na Inglaterra (séc. XVIII)',
+      likes: 31,
+      comments: 12
+    },
+    {
+      id: 3,
+      teacher: {
+        name: 'Prof. Maria Santos',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria'
+      },
+      subject: 'Biologia',
+      content: 'Fotossíntese: o processo que sustenta a vida na Terra! 🌱\n\n6CO₂ + 6H₂O + luz solar → C₆H₁₂O₆ + 6O₂',
+      likes: 45,
+      comments: 15
+    },
+    {
+      id: 4,
+      teacher: {
+        name: 'Prof. João Oliveira',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao'
+      },
+      subject: 'Física',
+      content: 'Lei de Newton: F = m × a 🚀\n\nA força é diretamente proporcional à massa e à aceleração!',
+      likes: 18,
+      comments: 6
+    },
+    {
+      id: 5,
+      teacher: {
+        name: 'Prof. Lucia Ferreira',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lucia'
+      },
+      subject: 'Química',
+      content: 'Tabela Periódica: organização dos elementos químicos ⚗️\n\nCada elemento tem propriedades únicas!',
+      likes: 22,
+      comments: 9
+    },
+    {
+      id: 6,
+      teacher: {
+        name: 'Prof. Roberto Lima',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=roberto'
+      },
+      subject: 'Geografia',
+      content: 'Placas tectônicas em movimento! 🌍\n\nA Terra está sempre se transformando.',
+      likes: 16,
+      comments: 4
+    }
+  ]
+
+  const feedItems = mockPosts.map(post => ({
+    content: <FeedPost post={post} />
+  }))
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -64,23 +140,18 @@ const Home = () => {
             </div>
           </div>
           <div className="hero-visual">
-            <div className="mock-post">
-              <div className="mock-header">
-                <div className="mock-avatar"></div>
-                <div className="mock-info">
-                  <div className="mock-name">Prof. Ana Costa</div>
-                  <div className="mock-subject">Matemática</div>
-                </div>
-              </div>
-              <div className="mock-content">
-                <p>Hoje vamos estudar equações do segundo grau! 📊</p>
-                <p>Lembrem-se: ax² + bx + c = 0</p>
-              </div>
-              <div className="mock-actions">
-                <div className="mock-likes">❤️ 24</div>
-                <div className="mock-comments">💬 8</div>
-                <div className="ai-badge">🤖 IA Disponível</div>
-              </div>
+            <div style={{height: '500px', position: 'relative'}}>
+              <InfiniteScroll
+                items={feedItems}
+                isTilted={true}
+                tiltDirection='left'
+                autoplay={true}
+                autoplaySpeed={0.5}
+                autoplayDirection="down"
+                pauseOnHover={true}
+                width="25rem"
+                itemMinHeight={180}
+              />
             </div>
           </div>
         </div>
