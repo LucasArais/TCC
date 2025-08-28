@@ -1,16 +1,30 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { X, User, Lock, GraduationCap, BookOpen, Brain, Users, MessageCircle, TrendingUp } from 'lucide-react'
+import { X, User, Lock, GraduationCap, BookOpen, Brain, Users, MessageCircle, TrendingUp, Mail, UserPlus, CheckCircle } from 'lucide-react'
 import InfiniteScroll from '../components/InfiniteScroll'
 import FeedPost from '../components/FeedPost'
+import Stepper, { Step } from '../components/Stepper'
 
 const Home = () => {
   const [showLoginSidebar, setShowLoginSidebar] = useState(false)
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [userType, setUserType] = useState('student')
   const [loading, setLoading] = useState(false)
+  
+  // Register form states
+  const [registerData, setRegisterData] = useState({
+    userType: 'student',
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    institution: '',
+    subject: ''
+  })
+  
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -103,6 +117,20 @@ const Home = () => {
     }
   }
 
+  const handleRegisterComplete = () => {
+    console.log('Cadastro completo:', registerData)
+    setShowRegisterModal(false)
+    // Aqui você pode implementar a lógica de cadastro
+    // Por exemplo, chamar uma API de registro
+  }
+
+  const updateRegisterData = (field, value) => {
+    setRegisterData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
   return (
     <div className="home-container">
       {/* Header */}
@@ -124,10 +152,9 @@ const Home = () => {
       <section className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>Conecte Professores e Alunos através da Inteligência Artificial</h1>
+            <h1>Conectamos Professores e Alunos e democratizamos o ensino através da Inteligência Artificial</h1>
             <p>
-              Crie, agende e compartilhe conteúdo educacional de forma inteligente. 
-              Economize tempo e melhore o aprendizado com nossa plataforma alimentada por IA.
+              <strong>Professores:</strong> Compartilhe conteúdo educacional de forma inteligente. Economize tempo e melhore o aprendizado dos seus alunos com nossa plataforma alimentada por IA.
             </p>
             <div className="hero-buttons">
               <button 
@@ -246,9 +273,201 @@ const Home = () => {
               </button>
 
               <div className="sidebar-footer">
-                <p>Não tem uma conta? <a href="#register">Cadastre-se</a></p>
+                <p>Não tem uma conta? <a href="#register" onClick={(e) => {
+                  e.preventDefault()
+                  setShowLoginSidebar(false)
+                  setShowRegisterModal(true)
+                }}>Cadastre-se</a></p>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Register Modal with Stepper */}
+      {showRegisterModal && (
+        <div className="sidebar-overlay" onClick={() => setShowRegisterModal(false)}>
+          <div className="register-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="register-modal-header">
+              <h2>Bem-vindo ao ProfAI!</h2>
+              <button 
+                className="close-sidebar"
+                onClick={() => setShowRegisterModal(false)}
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <Stepper
+              initialStep={1}
+              onFinalStepCompleted={handleRegisterComplete}
+              backButtonText="Voltar"
+              nextButtonText="Continuar"
+            >
+              <Step>
+                <div className="onboarding-step">
+                  <div className="step-icon">
+                    <UserPlus size={48} />
+                  </div>
+                  <h3>Bem-vindo à revolução educacional!</h3>
+                  <p>O ProfAI conecta professores e alunos através da inteligência artificial, criando uma experiência de aprendizado única e personalizada.</p>
+                  <div className="features-preview">
+                    <div className="feature-item">
+                      <span>IA Educacional</span>
+                    </div>
+                    <div className="feature-item">
+                      <span>Comunidade Ativa</span>
+                    </div>
+                    <div className="feature-item">
+                      <span>Análise de Progresso</span>
+                    </div>
+                  </div>
+                </div>
+              </Step>
+              
+              <Step>
+                <div className="onboarding-step">
+                  <div className="step-icon">
+                    <Users size={48} />
+                  </div>
+                  <h3>Você é professor ou aluno?</h3>
+                  <p>Selecione seu perfil para personalizar sua experiência na plataforma.</p>
+                  <div className="user-type-selection">
+                    <button
+                      type="button"
+                      className={`user-type-card ${registerData.userType === 'student' ? 'active' : ''}`}
+                      onClick={() => updateRegisterData('userType', 'student')}
+                    >
+                      <BookOpen size={32} />
+                      <h4>Sou Aluno</h4>
+                      <p>Quero aprender com professores e usar IA para estudar</p>
+                    </button>
+                    <button
+                      type="button"
+                      className={`user-type-card ${registerData.userType === 'teacher' ? 'active' : ''}`}
+                      onClick={() => updateRegisterData('userType', 'teacher')}
+                    >
+                      <GraduationCap size={32} />
+                      <h4>Sou Professor</h4>
+                      <p>Quero compartilhar conhecimento e acompanhar alunos</p>
+                    </button>
+                  </div>
+                </div>
+              </Step>
+              
+              <Step>
+                <div className="onboarding-step">
+                  <div className="step-icon">
+                    <User size={48} />
+                  </div>
+                  <h3>Conte-nos sobre você</h3>
+                  <p>Precisamos de algumas informações para criar seu perfil.</p>
+                  <div className="register-form">
+                    <div className="form-group">
+                      <label>Nome completo</label>
+                      <input
+                        type="text"
+                        placeholder="Seu nome completo"
+                        value={registerData.name}
+                        onChange={(e) => updateRegisterData('name', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>E-mail</label>
+                      <input
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={registerData.email}
+                        onChange={(e) => updateRegisterData('email', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Instituição</label>
+                      <input
+                        type="text"
+                        placeholder="Nome da sua escola/universidade"
+                        value={registerData.institution}
+                        onChange={(e) => updateRegisterData('institution', e.target.value)}
+                      />
+                    </div>
+                    {registerData.userType === 'teacher' && (
+                      <div className="form-group">
+                        <label>Matéria principal</label>
+                        <input
+                          type="text"
+                          placeholder="Ex: Matemática, História, Biologia..."
+                          value={registerData.subject}
+                          onChange={(e) => updateRegisterData('subject', e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Step>
+              
+              <Step>
+                <div className="onboarding-step">
+                  <div className="step-icon">
+                    <Lock size={48} />
+                  </div>
+                  <h3>Crie sua senha</h3>
+                  <p>Escolha uma senha segura para proteger sua conta.</p>
+                  <div className="register-form">
+                    <div className="form-group">
+                      <label>Senha</label>
+                      <input
+                        type="password"
+                        placeholder="Mínimo 8 caracteres"
+                        value={registerData.password}
+                        onChange={(e) => updateRegisterData('password', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Confirmar senha</label>
+                      <input
+                        type="password"
+                        placeholder="Digite a senha novamente"
+                        value={registerData.confirmPassword}
+                        onChange={(e) => updateRegisterData('confirmPassword', e.target.value)}
+                      />
+                    </div>
+                    {registerData.password && registerData.confirmPassword && 
+                     registerData.password !== registerData.confirmPassword && (
+                      <p className="error-message">As senhas não coincidem</p>
+                    )}
+                  </div>
+                </div>
+              </Step>
+              
+              <Step>
+                <div className="onboarding-step">
+                  <div className="step-icon success">
+                    <CheckCircle size={48} />
+                  </div>
+                  <h3>Tudo pronto!</h3>
+                  <p>Sua conta foi criada com sucesso. Agora você pode começar a explorar o ProfAI!</p>
+                  <div className="success-summary">
+                    <div className="summary-item">
+                      <strong>Nome:</strong> {registerData.name}
+                    </div>
+                    <div className="summary-item">
+                      <strong>Perfil:</strong> {registerData.userType === 'teacher' ? 'Professor' : 'Aluno'}
+                    </div>
+                    <div className="summary-item">
+                      <strong>E-mail:</strong> {registerData.email}
+                    </div>
+                    <div className="summary-item">
+                      <strong>Instituição:</strong> {registerData.institution}
+                    </div>
+                    {registerData.userType === 'teacher' && registerData.subject && (
+                      <div className="summary-item">
+                        <strong>Matéria:</strong> {registerData.subject}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Step>
+            </Stepper>
           </div>
         </div>
       )}
