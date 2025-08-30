@@ -30,7 +30,8 @@ export default function InfiniteScroll({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    const wrapper = wrapperRef.current;
+    if (!container || !wrapper) return;
     if (items.length === 0) return;
 
     const divItems = gsap.utils.toArray(container.children);
@@ -41,8 +42,11 @@ export default function InfiniteScroll({
     const itemHeight = firstItem.offsetHeight;
     const itemMarginTop = parseFloat(itemStyle.marginTop) || 0;
     const totalItemHeight = itemHeight + itemMarginTop;
-    const totalHeight = (itemHeight * items.length) + (itemMarginTop * (items.length - 1));
+    const totalHeight = totalItemHeight * items.length;
+    const wrapperHeight = wrapper.offsetHeight;
 
+    // Only show items that fit within the wrapper height
+    const visibleItemCount = Math.ceil(wrapperHeight / totalItemHeight) + 1;
     const wrapFn = gsap.utils.wrap(-totalHeight, totalHeight);
 
     divItems.forEach((child, i) => {

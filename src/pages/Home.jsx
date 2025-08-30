@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { X, User, Lock, GraduationCap, BookOpen, Brain, Users, MessageCircle, TrendingUp, Mail, UserPlus, CheckCircle } from 'lucide-react'
+import { X, User, Lock, GraduationCap, BookOpen, Brain, Users, MessageCircle, TrendingUp, Mail, UserPlus, CheckCircle, CreditCard, Check, Instagram, Linkedin, Twitter } from 'lucide-react'
 import InfiniteScroll from '../components/InfiniteScroll'
 import FeedPost from '../components/FeedPost'
 import Stepper, { Step } from '../components/Stepper'
@@ -201,6 +201,52 @@ const Home = () => {
             <TrendingUp className="feature-icon" />
             <h3>Análise de Desempenho</h3>
             <p>Acompanhe o progresso dos alunos e otimize sua estratégia de ensino com dados inteligentes</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="pricing-section">
+        <div className="pricing-content">
+          <div className="pricing-header">
+            <h2>Preço Acessível para Todos</h2>
+            <p>Democratizamos o acesso à educação de qualidade</p>
+          </div>
+          <div className="pricing-card">
+            <div className="pricing-card-header">
+              <CreditCard className="pricing-icon" />
+              <h3>Plano Estudantil</h3>
+              <div className="price">
+                <span className="currency">R$</span>
+                <span className="amount">15</span>
+                <span className="period">/mês</span>
+              </div>
+              <p className="price-description">Para alunos de todas as universidades</p>
+            </div>
+            <div className="pricing-features">
+              <div className="feature-item">
+                <Check className="check-icon" />
+                <span>Acesso completo ao feed educativo</span>
+              </div>
+              <div className="feature-item">
+                <Check className="check-icon" />
+                <span>Assistente IA ilimitado</span>
+              </div>
+              <div className="feature-item">
+                <Check className="check-icon" />
+                <span>Interação com professores</span>
+              </div>
+              <div className="feature-item">
+                <Check className="check-icon" />
+                <span>Análise de progresso personalizada</span>
+              </div>
+            </div>
+            <button 
+              className="pricing-cta-button"
+              onClick={() => setShowRegisterModal(true)}
+            >
+              Começar Agora
+            </button>
           </div>
         </div>
       </section>
@@ -471,6 +517,52 @@ const Home = () => {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-main">
+            <div className="footer-links">
+              <div className="footer-section">
+                <h4>Plataforma</h4>
+                <ul>
+                  <li><a href="#features">Recursos</a></li>
+                  <li><a href="#pricing">Preços</a></li>
+                  <li><a href="#about">Sobre</a></li>
+                </ul>
+              </div>
+              <div className="footer-section">
+                <h4>Suporte</h4>
+                <ul>
+                  <li><a href="#help">Central de Ajuda</a></li>
+                  <li><a href="#faq">FAQ</a></li>
+                  <li><a href="#contact">Contato</a></li>
+                </ul>
+              </div>
+              <div className="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                  <li><a href="#privacy">Privacidade</a></li>
+                  <li><a href="#terms">Termos de Uso</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <div className="footer-social">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                <Instagram size={20} />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                <Linkedin size={20} />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                <Twitter size={20} />
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

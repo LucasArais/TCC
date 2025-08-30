@@ -14,9 +14,9 @@
   content: "";
   position: absolute;
   background: linear-gradient(var(--dir, to bottom), rgba(248, 250, 252, 1), transparent);
-  height: 25%;
+  height: 30%;
   width: 100%;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
 
