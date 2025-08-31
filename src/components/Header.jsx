@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, User, Home, Search } from 'lucide-react'
+import { LogOut, User, Home, Search, Users } from 'lucide-react'
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth()
@@ -28,6 +28,10 @@ const Header = () => {
           <Link to="/search" className="nav-link">
             <Search size={20} />
             <span>Buscar</span>
+          </Link>
+          <Link to="/about" className="nav-link">
+            <Users size={20} />
+            <span>Quem Somos</span>
           </Link>
         </nav>
 

@@ -139,12 +139,20 @@ const Home = () => {
           <div className="logo">
             <h1>ProfAI</h1>
           </div>
-          <button 
-            className="login-button"
-            onClick={() => setShowLoginSidebar(true)}
-          >
-            Entrar
-          </button>
+          <div className="header-buttons">
+            <button 
+              className="about-button"
+              onClick={() => window.location.href = '/about'}
+            >
+              Quem Somos
+            </button>
+            <button 
+              className="login-button"
+              onClick={() => setShowLoginSidebar(true)}
+            >
+              Entrar
+            </button>
+          </div>
         </div>
       </header>
 

@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Feed from './pages/Feed'
 import Profile from './pages/Profile'
+import AboutUs from './pages/AboutUs'
 import './App.css'
 
 const ProtectedRoute = ({ children }) => {
@@ -42,6 +43,7 @@ const AppContent = () => {
               <Profile />
             </ProtectedRoute>
           } />
+          <Route path="/about" element={<AboutUs />} />
         </Routes>
       </main>
     </div>
