@@ -534,24 +534,41 @@ const Home = () => {
               <div className="footer-section">
                 <h4>Plataforma</h4>
                 <ul>
-                  <li><a href="#features">Recursos</a></li>
-                  <li><a href="#pricing">Preços</a></li>
-                  <li><a href="#about">Sobre</a></li>
+                  <li><a href="#" onClick={(e) => {
+                    e.preventDefault()
+                    document.querySelector('.features-section').scrollIntoView({ behavior: 'smooth' })
+                  }}>Recursos</a></li>
+                  <li><a href="#" onClick={(e) => {
+                    e.preventDefault()
+                    document.querySelector('.pricing-section').scrollIntoView({ behavior: 'smooth' })
+                  }}>Preços</a></li>
+                  <li><a href="#" onClick={(e) => {
+                    e.preventDefault()
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}>Sobre</a></li>
                 </ul>
               </div>
               <div className="footer-section">
                 <h4>Suporte</h4>
                 <ul>
-                  <li><a href="#help">Central de Ajuda</a></li>
-                  <li><a href="#faq">FAQ</a></li>
-                  <li><a href="#contact">Contato</a></li>
+                  <li><a href="#" onClick={(e) => {
+                    e.preventDefault()
+                    window.location.href = '/faq'
+                  }}>FAQ</a></li>
+                  <li><a href="mailto:lucas.arais2004@gmail.com">Contato</a></li>
                 </ul>
               </div>
               <div className="footer-section">
                 <h4>Legal</h4>
                 <ul>
-                  <li><a href="#privacy">Privacidade</a></li>
-                  <li><a href="#terms">Termos de Uso</a></li>
+                  <li><a href="#" onClick={(e) => {
+                    e.preventDefault()
+                    window.location.href = '/privacy'
+                  }}>Privacidade</a></li>
+                  <li><a href="#" onClick={(e) => {
+                    e.preventDefault()
+                    window.location.href = '/terms'
+                  }}>Termos de Uso</a></li>
                 </ul>
               </div>
             </div>

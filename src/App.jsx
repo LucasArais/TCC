@@ -6,6 +6,9 @@ import Login from './pages/Login'
 import Feed from './pages/Feed'
 import Profile from './pages/Profile'
 import AboutUs from './pages/AboutUs'
+import FAQ from './pages/FAQ'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
 import './App.css'
 
 const ProtectedRoute = ({ children }) => {
@@ -44,6 +47,9 @@ const AppContent = () => {
             </ProtectedRoute>
           } />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
         </Routes>
       </main>
     </div>
