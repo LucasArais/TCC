@@ -17,7 +17,6 @@ public class AlunoController {
     @Autowired
     private AlunoRepository repository;
 
-    // Criar novo aluno
     @PostMapping
     public ResponseEntity<Aluno> createAluno(@RequestBody Aluno aluno) {
         if (repository.existsByEmail(aluno.getEmail()) || repository.existsByCpf(aluno.getCpf())) {
@@ -27,13 +26,11 @@ public class AlunoController {
         return ResponseEntity.ok(novoAluno);
     }
 
-    // Listar todos os alunos
     @GetMapping
     public ResponseEntity<List<Aluno>> getAllAlunos() {
         return ResponseEntity.ok(repository.findAll());
     }
 
-    // Buscar aluno por ID
     @GetMapping("/{id}")
     public ResponseEntity<Aluno> getAlunoById(@PathVariable Long id) {
         Optional<Aluno> aluno = repository.findById(id);
@@ -41,7 +38,6 @@ public class AlunoController {
                     .orElse(ResponseEntity.notFound().build());
     }
 
-    // Atualizar aluno
     @PutMapping("/{id}")
     public ResponseEntity<Aluno> updateAluno(@PathVariable Long id, @RequestBody Aluno alunoAtualizado) {
         return repository.findById(id)
@@ -58,7 +54,6 @@ public class AlunoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Deletar aluno
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAluno(@PathVariable Long id) {
         if (!repository.existsById(id)) {
