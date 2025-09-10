@@ -223,6 +223,25 @@
   transform: none;
 }
 
+/* Forgot Password Button */
+.forgot-password-btn {
+  background: none;
+  border: none;
+  color: #6c63ff;
+  cursor: pointer;
+  font-size: 0.97em;
+  padding: 0;
+  margin: 0;
+  transition: color 0.2s;
+  text-align: right;
+}
+
+.forgot-password-btn:hover,
+.forgot-password-btn:focus {
+  color: #4b3bbd;
+  text-decoration: underline;
+}
+
 .login-footer {
   text-align: center;
   margin-top: 2rem;
