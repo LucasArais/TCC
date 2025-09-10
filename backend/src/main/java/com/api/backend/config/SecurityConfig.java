@@ -36,7 +36,12 @@ public class SecurityConfig {
             }))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/register", "/auth/login", "/alunos").permitAll() // endpoints públicos
+                .requestMatchers(
+                    "/auth/register", 
+                    "/auth/login", 
+                    "/alunos",
+                    "/auth/forgot-password")
+                    .permitAll() // endpoints públicos
                 .anyRequest().authenticated() // todos os outros precisam de JWT
             )
             // O filtro JWT só vai tentar autenticar se houver header "Authorization"
