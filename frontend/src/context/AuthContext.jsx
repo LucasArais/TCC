@@ -24,21 +24,48 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const login = async (email, password, userType) => {
-    // Simulação de login - em produção seria uma API real
-    const mockUser = {
-      id: Date.now(),
-      email,
-      userType, // 'teacher' ou 'student'
-      name: userType === 'teacher' ? 'Prof. João Silva' : 'Maria Santos',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      bio: userType === 'teacher' 
+    // Autenticação real com backend
+    const response = await fetch('http://localhost:8080/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha: password })
+    });
+
+    if (!response.ok) {
+      throw new Error('Email ou senha incorretos');
+    }
+
+    const token = await response.text();
+    localStorage.setItem('profai_token', token);
+
+    // Decodificar JWT para obter o email
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userEmail = payload.sub || payload.email || email;
+
+    // Buscar dados do usuário no backend
+    const userRes = await fetch(`http://localhost:8080/alunos/email/${encodeURIComponent(userEmail)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!userRes.ok) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    const userData = await userRes.json();
+    const userObj = {
+      id: userData.id,
+      email: userData.email,
+      userType,
+      name: userData.nome,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.email}`,
+      bio: userType === 'teacher'
         ? 'Professor de Matemática com 10 anos de experiência'
         : 'Estudante de Engenharia, sempre em busca de conhecimento'
-    }
-    
-    localStorage.setItem('profai_user', JSON.stringify(mockUser))
-    setUser(mockUser)
-    return mockUser
+    };
+
+    localStorage.setItem('profai_user', JSON.stringify(userObj));
+    setUser(userObj);
+    return userObj;
   }
 
   const logout = () => {
