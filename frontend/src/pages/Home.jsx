@@ -22,7 +22,9 @@ const Home = () => {
     password: '',
     confirmPassword: '',
     institution: '',
-    subject: ''
+    subject: '',
+    age: '',
+    cpf: ''
   })
   
   const { login } = useAuth()
@@ -117,11 +119,42 @@ const Home = () => {
     }
   }
 
-  const handleRegisterComplete = () => {
-    console.log('Cadastro completo:', registerData)
-    setShowRegisterModal(false)
-    // Aqui você pode implementar a lógica de cadastro
-    // Por exemplo, chamar uma API de registro
+  const handleRegisterComplete = async () => {
+    if (registerData.userType !== 'student') {
+      setShowRegisterModal(false)
+      return
+    }
+
+    // Mapeia os campos do frontend para os nomes esperados pelo backend
+    const alunoPayload = {
+      nome: registerData.name,
+      email: registerData.email,
+      senha: registerData.password,
+      instituicao: registerData.institution,
+      idade: Number(registerData.age),
+      cpf: registerData.cpf
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/alunos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(alunoPayload)
+      })
+
+      if (response.ok) {
+        alert('Cadastro realizado com sucesso!');
+        setShowRegisterModal(false);
+        // Remover qualquer abertura automática do modal de login aqui
+        // setShowLoginSidebar(true); // NÃO chamar isso!
+      } else if (response.status === 400) {
+        alert('E-mail ou CPF já cadastrado.');
+      } else {
+        alert('Erro ao cadastrar. Tente novamente.');
+      }
+    } catch (error) {
+      alert('Erro de conexão com o servidor.');
+    }
   }
 
   const updateRegisterData = (field, value) => {
@@ -444,6 +477,26 @@ const Home = () => {
                         onChange={(e) => updateRegisterData('institution', e.target.value)}
                       />
                     </div>
+                    <div className="form-group">
+                      <label>Idade</label>
+                      <input
+                        type="number"
+                        placeholder="Sua idade"
+                        value={registerData.age || ''}
+                        onChange={(e) => updateRegisterData('age', e.target.value)}
+                        min={1}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>CPF</label>
+                      <input
+                        type="text"
+                        placeholder="Seu CPF"
+                        value={registerData.cpf || ''}
+                        onChange={(e) => updateRegisterData('cpf', e.target.value)}
+                        maxLength={14}
+                      />
+                    </div>
                     {registerData.userType === 'teacher' && (
                       <div className="form-group">
                         <label>Matéria principal</label>
@@ -455,6 +508,8 @@ const Home = () => {
                         />
                       </div>
                     )}
+                    {/* Espaço extra para garantir que o botão de navegação do Stepper fique visível */}
+                    <div style={{ marginBottom: 32 }} />
                   </div>
                 </div>
               </Step>

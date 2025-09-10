@@ -1077,6 +1077,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  justify-content: flex-start;
 }
 
 .register-modal-header {
@@ -1947,9 +1949,6 @@
 
 /* Back Button */
 .back-button {
-  position: fixed;
-  top: 2rem;
-  left: 2rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1963,7 +1962,6 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 

@@ -26,9 +26,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(request -> {
+                var config = new org.springframework.web.cors.CorsConfiguration();
+                config.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://localhost:5174"));
+                config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(java.util.List.of("*"));
+                config.setAllowCredentials(true);
+                return config;
+            }))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/register", "/auth/login").permitAll() // endpoints públicos
+                .requestMatchers("/auth/register", "/auth/login", "/alunos").permitAll() // endpoints públicos
                 .anyRequest().authenticated() // todos os outros precisam de JWT
             )
             // O filtro JWT só vai tentar autenticar se houver header "Authorization"
