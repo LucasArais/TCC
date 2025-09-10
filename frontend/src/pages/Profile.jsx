@@ -104,33 +104,63 @@ const Profile = () => {
       </div>
       <div style={{ marginTop: 24 }}>
         {editMode ? (
-          <form onSubmit={handleEdit} className="edit-profile-form">
-            <div>
-              <label>Nome</label>
-              <input name="nome" value={form.nome} onChange={handleChange} />
+          <form onSubmit={handleEdit} className="edit-profile-form" style={{
+            maxWidth: 400,
+            margin: '0 auto',
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+            padding: 32,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Nome</label>
+              <input name="nome" value={form.nome} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-            <div>
-              <label>Email</label>
-              <input name="email" value={form.email} onChange={handleChange} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Email</label>
+              <input name="email" value={form.email} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-            <div>
-              <label>Instituição</label>
-              <input name="instituicao" value={form.instituicao} onChange={handleChange} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Instituição</label>
+              <input name="instituicao" value={form.instituicao} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-            <div>
-              <label>Idade</label>
-              <input name="idade" type="number" value={form.idade} onChange={handleChange} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Idade</label>
+              <input name="idade" type="number" value={form.idade} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-            <div>
-              <label>CPF</label>
-              <input name="cpf" value={form.cpf} onChange={handleChange} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>CPF</label>
+              <input name="cpf" value={form.cpf} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-            <div>
-              <label>Nova senha</label>
-              <input name="senha" type="password" value={form.senha} onChange={handleChange} placeholder="Deixe em branco para não alterar" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Nova senha</label>
+              <input name="senha" type="password" value={form.senha} onChange={handleChange} placeholder="Deixe em branco para não alterar" style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-            <button type="submit">Salvar</button>
-            <button type="button" onClick={() => setEditMode(false)}>Cancelar</button>
+            <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+              <button type="submit" style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer'
+              }}>Salvar</button>
+              <button type="button" onClick={() => setEditMode(false)} style={{
+                background: 'linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%)',
+                color: '#333', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer'
+              }}>Cancelar</button>
+            </div>
           </form>
         ) : (
           <>
