@@ -1,126 +1,174 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { useParams } from 'react-router-dom'
-import { User, BookOpen, Calendar, Heart, MessageCircle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const Profile = () => {
-  const { user } = useAuth()
-  const { teacherId } = useParams()
+  const { user, logout } = useAuth()
   const [profileData, setProfileData] = useState(null)
-  const [teacherPosts, setTeacherPosts] = useState([])
+  const [editMode, setEditMode] = useState(false)
+  const [form, setForm] = useState({})
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    // Mock data para perfil do professor
-    const mockProfile = {
-      id: teacherId || user?.id,
-      name: 'Prof. Ana Costa',
-      subject: 'Matemática',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana',
-      bio: 'Professora de Matemática há 15 anos. Apaixonada por ensinar e tornar a matemática acessível para todos os alunos.',
-      education: 'Mestrado em Matemática - USP',
-      experience: '15 anos de experiência',
-      followers: 1247,
-      posts: 89,
-      likes: 3421
+    if (!user) {
+      navigate('/')
+      return
     }
-
-    const mockPosts = [
-      {
-        id: 1,
-        content: 'Hoje vamos estudar equações do segundo grau! 📊\n\nLembrem-se: ax² + bx + c = 0\n\nA fórmula de Bhaskara é nossa aliada: x = (-b ± √(b²-4ac)) / 2a',
-        timestamp: '2 horas atrás',
-        likes: 24,
-        comments: 8,
-        subject: 'Matemática'
-      },
-      {
-        id: 4,
-        content: 'Dica importante sobre frações! 🧮\n\nPara somar frações com denominadores diferentes:\n1. Encontre o MMC dos denominadores\n2. Transforme as frações\n3. Some os numeradores\n\nExemplo: 1/2 + 1/3 = 3/6 + 2/6 = 5/6',
-        timestamp: '1 dia atrás',
-        likes: 18,
-        comments: 5,
-        subject: 'Matemática'
-      },
-      {
-        id: 5,
-        content: 'Geometria pode ser divertida! 📐\n\nÁrea do triângulo: A = (base × altura) / 2\nÁrea do círculo: A = π × r²\nÁrea do retângulo: A = base × altura\n\nVamos praticar com exercícios!',
-        timestamp: '3 dias atrás',
-        likes: 32,
-        comments: 12,
-        subject: 'Matemática'
+    const fetchProfile = async () => {
+      setLoading(true)
+      const token = localStorage.getItem('profai_token')
+      const res = await fetch(`http://localhost:8080/alunos/email/${encodeURIComponent(user.email)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setProfileData(data)
+        setForm({
+          nome: data.nome,
+          email: data.email,
+          idade: data.idade,
+          instituicao: data.instituicao,
+          cpf: data.cpf,
+          senha: ''
+        })
       }
-    ]
+      setLoading(false)
+    }
+    fetchProfile()
+  }, [user, navigate])
 
-    setProfileData(mockProfile)
-    setTeacherPosts(mockPosts)
-  }, [teacherId, user])
-
-  if (!profileData) {
-    return <div className="loading">Carregando perfil...</div>
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value })
   }
+
+  const handleEdit = async e => {
+    e.preventDefault()
+    const token = localStorage.getItem('profai_token')
+    const res = await fetch(`http://localhost:8080/alunos/${profileData.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        ...form,
+        senha: form.senha ? form.senha : profileData.senha
+      })
+    })
+    if (res.ok) {
+      alert('Dados atualizados!')
+      setEditMode(false)
+      const updated = await res.json()
+      setProfileData(updated)
+    } else {
+      alert('Erro ao atualizar dados')
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Tem certeza que deseja deletar sua conta?')) return
+    const token = localStorage.getItem('profai_token')
+    const res = await fetch(`http://localhost:8080/alunos/${profileData.id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (res.ok) {
+      logout()
+      navigate('/')
+    } else {
+      alert('Erro ao deletar conta')
+    }
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
+
+  if (loading) return <div className="loading">Carregando perfil...</div>
+  if (!profileData) return <div>Usuário não encontrado</div>
 
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <div className="profile-info">
-          <img src={profileData.avatar} alt={profileData.name} className="profile-avatar" />
-          <div className="profile-details">
-            <h1>{profileData.name}</h1>
-            <p className="profile-subject">{profileData.subject}</p>
-            <p className="profile-bio">{profileData.bio}</p>
-            <div className="profile-credentials">
-              <p><strong>Formação:</strong> {profileData.education}</p>
-              <p><strong>Experiência:</strong> {profileData.experience}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="profile-stats">
-          <div className="stat-item">
-            <span className="stat-number">{profileData.followers}</span>
-            <span className="stat-label">Seguidores</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{profileData.posts}</span>
-            <span className="stat-label">Posts</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{profileData.likes}</span>
-            <span className="stat-label">Curtidas</span>
-          </div>
+        <img
+          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profileData.email}`}
+          alt={profileData.nome}
+          className="profile-avatar"
+        />
+        <div className="profile-details">
+          <h1>{profileData.nome}</h1>
+          <p><strong>Email:</strong> {profileData.email}</p>
+          <p><strong>Instituição:</strong> {profileData.instituicao}</p>
+          <p><strong>Idade:</strong> {profileData.idade}</p>
+          <p><strong>CPF:</strong> {profileData.cpf}</p>
         </div>
       </div>
-
-      <div className="profile-content">
-        <h2>Conteúdos Publicados</h2>
-        <div className="teacher-posts">
-          {teacherPosts.map(post => (
-            <div key={post.id} className="teacher-post-card">
-              <div className="post-header">
-                <div className="post-meta">
-                  <Calendar size={14} />
-                  <span>{post.timestamp}</span>
-                  <span className="subject-tag">{post.subject}</span>
-                </div>
-              </div>
-              
-              <div className="post-content">
-                <p>{post.content}</p>
-              </div>
-              
-              <div className="post-stats">
-                <div className="stat">
-                  <Heart size={16} />
-                  <span>{post.likes}</span>
-                </div>
-                <div className="stat">
-                  <MessageCircle size={16} />
-                  <span>{post.comments}</span>
-                </div>
-              </div>
+      <div style={{ marginTop: 24 }}>
+        {editMode ? (
+          <form onSubmit={handleEdit} className="edit-profile-form" style={{
+            maxWidth: 400,
+            margin: '0 auto',
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+            padding: 32,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Nome</label>
+              <input name="nome" value={form.nome} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
             </div>
-          ))}
-        </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Email</label>
+              <input name="email" value={form.email} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Instituição</label>
+              <input name="instituicao" value={form.instituicao} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Idade</label>
+              <input name="idade" type="number" value={form.idade} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>CPF</label>
+              <input name="cpf" value={form.cpf} onChange={handleChange} style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontWeight: 500, marginBottom: 2 }}>Nova senha</label>
+              <input name="senha" type="password" value={form.senha} onChange={handleChange} placeholder="Deixe em branco para não alterar" style={{
+                padding: 10, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 16
+              }} />
+            </div>
+            <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+              <button type="submit" style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer'
+              }}>Salvar</button>
+              <button type="button" onClick={() => setEditMode(false)} style={{
+                background: 'linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%)',
+                color: '#333', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer'
+              }}>Cancelar</button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <button onClick={() => setEditMode(true)}>Editar Perfil</button>
+            <button onClick={handleDelete} style={{ marginLeft: 16, color: 'red' }}>Deletar Conta</button>
+            <button onClick={handleLogout} style={{ marginLeft: 16 }}>Sair</button>
+          </>
+        )}
       </div>
     </div>
   )

@@ -9,6 +9,10 @@ import Stepper, { Step } from '../components/Stepper'
 const Home = () => {
   const [showLoginSidebar, setShowLoginSidebar] = useState(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotMessage, setForgotMessage] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [userType, setUserType] = useState('student')
@@ -22,7 +26,9 @@ const Home = () => {
     password: '',
     confirmPassword: '',
     institution: '',
-    subject: ''
+    subject: '',
+    age: '',
+    cpf: ''
   })
   
   const { login } = useAuth()
@@ -117,11 +123,42 @@ const Home = () => {
     }
   }
 
-  const handleRegisterComplete = () => {
-    console.log('Cadastro completo:', registerData)
-    setShowRegisterModal(false)
-    // Aqui você pode implementar a lógica de cadastro
-    // Por exemplo, chamar uma API de registro
+  const handleRegisterComplete = async () => {
+    if (registerData.userType !== 'student') {
+      setShowRegisterModal(false)
+      return
+    }
+
+    // Mapeia os campos do frontend para os nomes esperados pelo backend
+    const alunoPayload = {
+      nome: registerData.name,
+      email: registerData.email,
+      senha: registerData.password,
+      instituicao: registerData.institution,
+      idade: Number(registerData.age),
+      cpf: registerData.cpf
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/alunos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(alunoPayload)
+      })
+
+      if (response.ok) {
+        alert('Cadastro realizado com sucesso!');
+        setShowRegisterModal(false);
+        // Remover qualquer abertura automática do modal de login aqui
+        // setShowLoginSidebar(true); // NÃO chamar isso!
+      } else if (response.status === 400) {
+        alert('E-mail ou CPF já cadastrado.');
+      } else {
+        alert('Erro ao cadastrar. Tente novamente.');
+      }
+    } catch (error) {
+      alert('Erro de conexão com o servidor.');
+    }
   }
 
   const updateRegisterData = (field, value) => {
@@ -320,6 +357,15 @@ const Home = () => {
                     required
                   />
                 </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+                  <button
+                    type="button"
+                    className="forgot-password-btn"
+                    onClick={() => setShowForgotPassword(true)}
+                  >
+                    Esqueci minha senha
+                  </button>
+                </div>
               </div>
 
               <button type="submit" className="login-submit-btn" disabled={loading}>
@@ -334,6 +380,121 @@ const Home = () => {
                 }}>Cadastre-se</a></p>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de recuperação de senha */}
+      {showForgotPassword && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: '2rem',
+              borderRadius: '8px',
+              minWidth: '320px',
+              boxShadow: '0 2px 16px rgba(0,0,0,0.15)',
+              position: 'relative'
+            }}
+          >
+            <button
+              onClick={() => {
+                setShowForgotPassword(false)
+                setForgotEmail('')
+                setForgotMessage('')
+              }}
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 12,
+                background: 'none',
+                border: 'none',
+                fontSize: '2rem',
+                color: '#333',
+                cursor: 'pointer',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 0.2s'
+              }}
+              onMouseOver={e => e.currentTarget.style.background = '#f3f4f6'}
+              onMouseOut={e => e.currentTarget.style.background = 'none'}
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+            <h2>Recuperar senha</h2>
+            <p>Informe seu e-mail cadastrado para receber as instruções de recuperação.</p>
+            <input
+              type="email"
+              placeholder="Seu e-mail"
+              value={forgotEmail}
+              onChange={e => setForgotEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                margin: '0.5rem 0 1rem 0',
+                borderRadius: '4px',
+                border: '1px solid #ccc'
+              }}
+              required
+            />
+            <button
+              onClick={async () => {
+                setForgotLoading(true)
+                setForgotMessage('')
+                try {
+                  const res = await fetch('/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail })
+                  })
+                  if (res.ok) {
+                    setForgotMessage('Se o e-mail estiver cadastrado, você receberá as instruções em instantes.')
+                  } else {
+                    setForgotMessage('Erro ao solicitar recuperação. Tente novamente.')
+                  }
+                } catch (err) {
+                  setForgotMessage('Erro ao conectar ao servidor.')
+                } finally {
+                  setForgotLoading(false)
+                }
+              }}
+              disabled={forgotLoading || !forgotEmail}
+              style={{
+                width: '100%',
+                padding: '0.6rem',
+                background: '#6c63ff',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: forgotLoading || !forgotEmail ? 'not-allowed' : 'pointer',
+                fontWeight: 600
+              }}
+            >
+              {forgotLoading ? 'Enviando...' : 'Enviar'}
+            </button>
+            {forgotMessage && (
+              <div style={{ marginTop: '1rem', color: forgotMessage.startsWith('Se o e-mail') ? 'green' : 'red' }}>
+                {forgotMessage}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -444,6 +605,26 @@ const Home = () => {
                         onChange={(e) => updateRegisterData('institution', e.target.value)}
                       />
                     </div>
+                    <div className="form-group">
+                      <label>Idade</label>
+                      <input
+                        type="number"
+                        placeholder="Sua idade"
+                        value={registerData.age || ''}
+                        onChange={(e) => updateRegisterData('age', e.target.value)}
+                        min={1}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>CPF</label>
+                      <input
+                        type="text"
+                        placeholder="Seu CPF"
+                        value={registerData.cpf || ''}
+                        onChange={(e) => updateRegisterData('cpf', e.target.value)}
+                        maxLength={14}
+                      />
+                    </div>
                     {registerData.userType === 'teacher' && (
                       <div className="form-group">
                         <label>Matéria principal</label>
@@ -455,6 +636,8 @@ const Home = () => {
                         />
                       </div>
                     )}
+                    {/* Espaço extra para garantir que o botão de navegação do Stepper fique visível */}
+                    <div style={{ marginBottom: 32 }} />
                   </div>
                 </div>
               </Step>

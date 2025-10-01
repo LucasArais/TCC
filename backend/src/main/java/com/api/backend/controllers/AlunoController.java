@@ -6,7 +6,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.api.backend.models.Aluno;
 import com.api.backend.repository.AlunoRepository;
@@ -42,6 +49,13 @@ public class AlunoController {
     @GetMapping("/{id}")
     public ResponseEntity<Aluno> getAlunoById(@PathVariable Long id) {
         Optional<Aluno> aluno = repository.findById(id);
+        return aluno.map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Aluno> getAlunoByEmail(@PathVariable String email) {
+        Optional<Aluno> aluno = repository.findByEmail(email);
         return aluno.map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
     }
