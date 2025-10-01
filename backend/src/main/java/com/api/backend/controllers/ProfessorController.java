@@ -1,11 +1,14 @@
 package com.api.backend.controllers;
 
 import com.api.backend.models.Professor;
+import com.api.backend.service.S3Service;
+
 import com.api.backend.repository.ProfessorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,9 @@ public class ProfessorController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private S3Service s3Service;
 
     // Criar professor
     @PostMapping
@@ -45,12 +51,13 @@ public class ProfessorController {
     public ResponseEntity<Professor> getProfessorById(@PathVariable Long id) {
         Optional<Professor> professor = repository.findById(id);
         return professor.map(ResponseEntity::ok)
-                        .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // Atualizar professor
     @PutMapping("/{id}")
-    public ResponseEntity<Professor> updateProfessor(@PathVariable Long id, @RequestBody Professor professorAtualizado) {
+    public ResponseEntity<Professor> updateProfessor(@PathVariable Long id,
+            @RequestBody Professor professorAtualizado) {
         return repository.findById(id)
                 .map(professor -> {
                     professor.setNome(professorAtualizado.getNome());
@@ -76,4 +83,21 @@ public class ProfessorController {
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/upload-pdf")
+    public ResponseEntity<String> uploadPdf(@PathVariable Long id, @RequestParam("arquivo") MultipartFile arquivo) {
+        return repository.findById(id)
+                .map(professor -> {
+                    try {
+                        String url = s3Service.uploadFile(arquivo);
+                        professor.setPdfUrl(url);
+                        repository.save(professor);
+                        return ResponseEntity.ok(url);
+                    } catch (Exception e) {
+                        return ResponseEntity.status(500).body("Erro ao enviar arquivo: " + e.getMessage());
+                    }
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }
